@@ -1,0 +1,36 @@
+<div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white shadow-xl rounded-xl p-6">
+    <h1 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Sign in to your account</h1>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input id="email" type="email" formControlName="email" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="you@example.com" />
+        <p class="mt-1 text-sm text-red-600" *ngIf="form.controls.email.touched && form.controls.email.invalid">
+          Please enter a valid email.
+        </p>
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input id="password" type="password" formControlName="password" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+        <p class="mt-1 text-sm text-red-600" *ngIf="form.controls.password.touched && form.controls.password.invalid">
+          Password is required.
+        </p>
+      </div>
+
+      <button type="submit" [disabled]="form.invalid || loading" class="w-full inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-white font-medium shadow hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+        <span *ngIf="!loading">Sign in</span>
+        <span *ngIf="loading">Signing in…</span>
+      </button>
+
+      <div class="text-sm text-red-600" *ngIf="error">{{ error }}</div>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-gray-600">
+      No account?
+      <a routerLink="/register" class="font-medium text-indigo-600 hover:text-indigo-500">Register</a>
+    </p>
+  </div>
+</div>
+

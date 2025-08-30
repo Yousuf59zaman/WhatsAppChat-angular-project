@@ -1,0 +1,13 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-3xl mx-auto bg-white shadow rounded-xl p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-semibold text-gray-900">Your Profile</h1>
+      <button (click)="logout()" class="rounded-md bg-red-600 px-3 py-2 text-white text-sm font-medium hover:bg-red-700">Logout</button>
+    </div>
+
+    <div *ngIf="error" class="text-red-600">{{ error }}</div>
+    <pre *ngIf="me" class="bg-gray-100 rounded-md p-4 overflow-auto text-sm">{{ me | json }}</pre>
+    <div *ngIf="!me && !error" class="text-gray-600">Loading...</div>
+  </div>
+</div>
+
