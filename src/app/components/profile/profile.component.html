@@ -5,9 +5,60 @@
       <button (click)="logout()" class="rounded-md bg-red-600 px-3 py-2 text-white text-sm font-medium hover:bg-red-700">Logout</button>
     </div>
 
-    <div *ngIf="error" class="text-red-600">{{ error }}</div>
-    <pre *ngIf="me" class="bg-gray-100 rounded-md p-4 overflow-auto text-sm">{{ me | json }}</pre>
-    <div *ngIf="!me && !error" class="text-gray-600">Loading...</div>
+    <ng-container *ngIf="profile$ | async as p; else loadingTpl">
+      <div class="flex items-center gap-4 mb-6">
+        <img *ngIf="p.avatarAbsoluteUrl; else placeholder" [src]="p.avatarAbsoluteUrl" alt="avatar" class="w-16 h-16 rounded-full object-cover border" />
+        <ng-template #placeholder>
+          <div class="w-16 h-16 rounded-full bg-gray-100 border"></div>
+        </ng-template>
+        <div>
+          <div class="text-gray-900 font-semibold">{{ p.displayName || 'No display name' }}</div>
+          <div class="text-sm text-gray-600">Last seen: {{ p.lastSeenDate ? (p.lastSeenDate | date:'medium') : 'Hidden' }}</div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <form [formGroup]="form" (ngSubmit)="saveProfile()" class="space-y-4">
+          <h2 class="text-lg font-semibold text-gray-900">Edit profile</h2>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Display name</label>
+            <input type="text" formControlName="displayName" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">About</label>
+            <textarea rows="3" formControlName="about" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+          </div>
+          <button type="submit" [disabled]="form.invalid || saving" class="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-white text-sm font-medium shadow hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="!saving">Save changes</span>
+            <span *ngIf="saving">Saving…</span>
+          </button>
+        </form>
+
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900">Privacy</h2>
+            <form [formGroup]="privacyForm" (ngSubmit)="savePrivacy()" class="mt-2 flex items-center gap-2">
+              <select formControlName="lastSeenPrivacy" class="rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="Everyone">Everyone</option>
+                <option value="Nobody">Nobody</option>
+              </select>
+              <button type="submit" [disabled]="privacySaving" class="rounded-md bg-indigo-600 px-3 py-2 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">Update</button>
+            </form>
+          </div>
+
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900">Avatar</h2>
+            <input type="file" accept="image/*" (change)="onAvatarSelected($event)" class="mt-2 block" />
+            <div class="text-sm text-gray-600 mt-1" *ngIf="uploading">Uploading…</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-sm text-red-600 mt-4" *ngIf="error">{{ error }}</div>
+    </ng-container>
+
+    <ng-template #loadingTpl>
+      <div class="text-gray-600">Loading…</div>
+    </ng-template>
   </div>
 </div>
-
