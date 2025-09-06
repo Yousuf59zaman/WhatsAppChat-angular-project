@@ -1,12 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
-import { map, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { Profile, UpdatePrivacyRequest, UpdateProfileRequest } from '../../models/profile.models';
 import { mapProfile } from '../../utils/profile.utils';
+import { ContactsService } from '../../services/contacts.service';
+import { Contact, SearchUser } from '../../models/contact.models';
 
 @Component({
   selector: 'app-profile',
@@ -18,6 +20,7 @@ import { mapProfile } from '../../utils/profile.utils';
 export class ProfileComponent implements OnInit {
   private auth = inject(AuthService);
   private profileService = inject(ProfileService);
+  private contactsService = inject(ContactsService);
   private fb = inject(FormBuilder);
 
   profile$!: Observable<ReturnType<typeof mapProfile>>;
@@ -25,6 +28,12 @@ export class ProfileComponent implements OnInit {
   saving = false;
   privacySaving = false;
   uploading = false;
+
+  // Contacts
+  contacts: Contact[] = [];
+  contactsLoading = false;
+  searchControl = new FormControl<string>('');
+  searchResults: SearchUser[] = [];
 
   form = this.fb.group({
     displayName: ['', [Validators.required]],
@@ -37,6 +46,8 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+    this.loadContacts();
+    this.setupSearch();
   }
 
   private load() {
@@ -90,5 +101,48 @@ export class ProfileComponent implements OnInit {
 
   logout() {
     this.auth.logout();
+  }
+
+  private loadContacts() {
+    this.contactsLoading = true;
+    this.contactsService.getMyContacts().subscribe({
+      next: (list) => {
+        this.contacts = list;
+        this.contactsLoading = false;
+      },
+      error: () => {
+        this.contactsLoading = false;
+      },
+    });
+  }
+
+  private setupSearch() {
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((q) => (q && q.trim().length > 0 ? this.contactsService.searchUsers(q.trim()) : of([])))
+      )
+      .subscribe((results) => (this.searchResults = results));
+  }
+
+  addContact(user: SearchUser) {
+    this.contactsService
+      .addContact({ contactUserId: user.id })
+      .subscribe((newContact) => this.contacts.push(newContact));
+  }
+
+  removeContact(userId: string) {
+    this.contactsService
+      .removeContact(userId)
+      .subscribe(() => (this.contacts = this.contacts.filter((c) => c.id !== userId)));
+  }
+
+  blockUser(userId: string) {
+    this.contactsService.blockUser(userId).subscribe();
+  }
+
+  unblockUser(userId: string) {
+    this.contactsService.unblockUser(userId).subscribe();
   }
 }

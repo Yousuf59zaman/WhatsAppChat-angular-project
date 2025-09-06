@@ -1,0 +1,111 @@
+<section class="p-4 space-y-4">
+  <h2 class="text-xl font-semibold">Conversations</h2>
+
+  <div *ngIf="error()" class="text-red-600">{{ error() }}</div>
+  <div *ngIf="loading()">Loading...</div>
+
+  <div class="grid gap-6 md:grid-cols-2">
+    <div>
+      <h3 class="font-medium mb-2">My Conversations</h3>
+      <ul class="divide-y">
+        <li
+          *ngFor="let c of conversations()"
+          (click)="select(c)"
+          class="py-2 cursor-pointer hover:bg-gray-50 px-2 rounded"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-semibold">
+                {{ c.title || (c.isGroup ? '(Untitled group)' : '1:1 Chat') }}
+              </div>
+              <div class="text-xs text-gray-500">ID: {{ c.id }}</div>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded bg-gray-200">
+              {{ c.isGroup ? 'Group' : 'Direct' }}
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="font-medium mb-2">Selected</h3>
+      <ng-container *ngIf="selected() as s; else none">
+        <div class="space-y-2 border rounded p-3">
+          <div class="font-semibold">{{ s.title || '(no title)' }}</div>
+          <div class="text-xs text-gray-500">{{ s.id }}</div>
+          <div class="text-xs">isGroup: {{ s.isGroup }}</div>
+
+          <div class="flex gap-2">
+            <button class="btn" (click)="refresh()">Refresh</button>
+            <button class="btn" (click)="leave()">Leave</button>
+            <button class="btn" (click)="pin(true)">Pin</button>
+            <button class="btn" (click)="pin(false)">Unpin</button>
+            <button class="btn" (click)="mute(true)">Mute</button>
+            <button class="btn" (click)="mute(false)">Unmute</button>
+          </div>
+
+          <div *ngIf="s.isGroup" class="mt-3 space-y-3">
+            <form [formGroup]="updateGroupForm" (ngSubmit)="updateGroupInfo()" class="space-y-2">
+              <div>
+                <label class="block text-sm">Title</label>
+                <input class="input" type="text" formControlName="title" />
+              </div>
+              <div>
+                <label class="block text-sm">Photo URL</label>
+                <input class="input" type="text" formControlName="photoUrl" />
+              </div>
+              <button class="btn" type="submit">Update Group Info</button>
+            </form>
+
+            <form [formGroup]="addMembersForm" (ngSubmit)="addMembers()" class="space-y-2">
+              <div>
+                <label class="block text-sm">Add Members (comma-separated user IDs)</label>
+                <input class="input" type="text" formControlName="userIdsCsv" />
+              </div>
+              <button class="btn" type="submit">Add Members</button>
+            </form>
+
+            <div class="text-xs text-gray-500">Use Remove Member by entering a userId and clicking Remove.</div>
+            <div class="flex gap-2">
+              <input #rm type="text" class="input" placeholder="userId to remove" />
+              <button class="btn" (click)="removeMember(rm.value); rm.value=''">Remove</button>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #none>
+        <div class="text-gray-500">Select a conversation from the list.</div>
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="grid gap-6 md:grid-cols-2">
+    <form [formGroup]="oneToOneForm" (ngSubmit)="createOneToOne()" class="space-y-2">
+      <h3 class="font-medium">Create 1:1</h3>
+      <div>
+        <label class="block text-sm">Other User ID</label>
+        <input class="input" type="text" formControlName="otherUserId" />
+      </div>
+      <button class="btn" type="submit">Create 1:1</button>
+    </form>
+
+    <form [formGroup]="createGroupForm" (ngSubmit)="createGroup()" class="space-y-2">
+      <h3 class="font-medium">Create Group</h3>
+      <div>
+        <label class="block text-sm">Title</label>
+        <input class="input" type="text" formControlName="title" />
+      </div>
+      <div>
+        <label class="block text-sm">Photo URL</label>
+        <input class="input" type="text" formControlName="photoUrl" />
+      </div>
+      <div>
+        <label class="block text-sm">Member IDs (comma-separated)</label>
+        <input class="input" type="text" formControlName="memberIdsCsv" />
+      </div>
+      <button class="btn" type="submit">Create Group</button>
+    </form>
+  </div>
+</section>
+
