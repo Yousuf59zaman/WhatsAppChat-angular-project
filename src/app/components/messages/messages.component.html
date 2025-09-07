@@ -1,0 +1,63 @@
+<section class="p-4 space-y-4">
+  <h2 class="text-xl font-semibold">Conversation {{ conversationId() }}</h2>
+
+  <div *ngIf="error()" class="text-red-600">{{ error() }}</div>
+
+  <div class="flex items-center gap-2">
+    <input type="text" class="border p-2 flex-1" placeholder="Type a message"
+           [(ngModel)]="textBody" />
+    <input id="fileInput" type="file" class="hidden" (change)="onFilesChange($event)" multiple />
+    <button class="px-3 py-2 bg-blue-600 text-white" (click)="sendText()">Send</button>
+    <button class="px-3 py-2 bg-emerald-600 text-white"
+            [disabled]="!filesToSend.length"
+            (click)="sendFiles()">Send Files ({{ filesToSend.length }})</button>
+    <label for="fileInput" class="px-3 py-2 bg-gray-200 cursor-pointer">Attach</label>
+  </div>
+
+  <div class="flex items-center gap-2 text-sm text-gray-600">
+    <span>Reply to:</span>
+    <input class="border p-1" placeholder="messageId (optional)" [(ngModel)]="replyToMessageId" />
+  </div>
+
+  <div class="flex items-center gap-3">
+    <button class="px-3 py-1 border" (click)="loadInitial()" [disabled]="loading()">Refresh</button>
+    <button class="px-3 py-1 border" (click)="loadOlder()" [disabled]="loading() || !messages().length">Load older</button>
+    <span *ngIf="loading()">Loading...</span>
+  </div>
+
+  <ul class="space-y-3">
+    <li *ngFor="let m of messages()" class="border rounded p-3">
+      <div class="text-xs text-gray-500 flex justify-between">
+        <span>{{ m.id }} • {{ m.createdAt }}</span>
+        <span *ngIf="m.editedAt">edited {{ m.editedAt }}</span>
+      </div>
+
+      <div class="mt-1" *ngIf="!isAttachment(m)">
+        <div *ngIf="editingId !== m.id; else editTpl">{{ m.body }}</div>
+        <ng-template #editTpl>
+          <div class="flex gap-2">
+            <input class="border p-1 flex-1" [(ngModel)]="editBody" />
+            <button class="px-2 bg-blue-600 text-white" (click)="saveEdit(m)">Save</button>
+            <button class="px-2 border" (click)="cancelEdit()">Cancel</button>
+          </div>
+        </ng-template>
+      </div>
+
+      <div class="mt-1" *ngIf="isAttachment(m)">
+        <div class="text-sm">Attachment message ({{ m.attachments.length }} files)</div>
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          <a *ngFor="let a of m.attachments" class="text-blue-700 underline" [href]="a.url" target="_blank">
+            {{ a.fileName }} ({{ a.mimeType || 'file' }}, {{ a.size || '?' }} bytes)
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-2 flex gap-2 text-sm">
+        <button class="px-2 border" (click)="startEdit(m)" *ngIf="!isAttachment(m)">Edit</button>
+        <button class="px-2 border" (click)="deleteForMe(m)">Delete (me)</button>
+        <button class="px-2 border" (click)="deleteForEveryone(m)">Delete (everyone)</button>
+      </div>
+    </li>
+  </ul>
+</section>
+

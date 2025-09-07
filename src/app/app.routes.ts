@@ -5,6 +5,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { ConversationsComponent } from './components/conversations/conversations.component';
 import { ContactsComponent } from './components/contacts/contacts.component';
 import { HomeComponent } from './components/home/home.component';
+import { MessagesComponent } from './components/messages/messages.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'contacts', component: ContactsComponent, canActivate: [authGuard] },
   { path: 'conversations', component: ConversationsComponent, canActivate: [authGuard] },
+  { path: 'messages/:conversationId', component: MessagesComponent, canActivate: [authGuard] },
   { path: '', pathMatch: 'full', redirectTo: 'home' },
   { path: '**', redirectTo: 'home' },
 ];
