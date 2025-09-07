@@ -129,7 +129,12 @@ export class ProfileComponent implements OnInit {
   addContact(user: SearchUser) {
     this.contactsService
       .addContact({ contactUserId: user.id })
-      .subscribe((newContact) => this.contacts.push(newContact));
+      .subscribe((newContact) => {
+        this.contacts.push(newContact);
+        // Clear search to reveal the contacts list with the newly added contact
+        this.searchControl.setValue('', { emitEvent: true });
+        this.searchResults = [];
+      });
   }
 
   removeContact(userId: string) {
