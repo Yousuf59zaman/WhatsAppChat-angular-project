@@ -9,7 +9,10 @@ let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 function isApiUrl(url: string): boolean {
-  return !!url && url.startsWith(environment.apiUrl);
+  if (!url) return false;
+  const baseA = (environment.apiUrl || '').toString();
+  const baseB = (environment.apiBaseUrl || '').toString();
+  return (!!baseA && url.startsWith(baseA)) || (!!baseB && url.startsWith(baseB));
 }
 
 function isAuthEndpoint(url: string): boolean {
@@ -85,4 +88,3 @@ export const authInterceptorFactory: HttpInterceptorFn = (req, next) => {
     })
   );
 };
-

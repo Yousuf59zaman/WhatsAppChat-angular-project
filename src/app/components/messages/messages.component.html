@@ -57,7 +57,10 @@
         <button class="px-2 border" (click)="deleteForMe(m)">Delete (me)</button>
         <button class="px-2 border" (click)="deleteForEveryone(m)">Delete (everyone)</button>
       </div>
+
+      <div class="mt-1 text-xs text-gray-500">
+        Receipts: {{ receiptSummary(m.id) }}
+      </div>
     </li>
   </ul>
 </section>
-
