@@ -19,8 +19,57 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
 ## Running end-to-end tests
+Playwright has been set up for browser-based E2E tests.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+### Install browsers (first time)
+
+```
+npx playwright install
+```
+
+### Run all tests headless
+
+```
+npm run test:e2e
+```
+
+### Run with UI mode (watch / trace viewer)
+
+```
+npm run test:e2e:ui
+```
+
+### Debug a single test
+
+```
+npm run test:e2e -- --project=chromium tests/auth.spec.ts -g "login form validation"
+```
+
+Or launch with the debug helpers:
+
+```
+npm run test:e2e:debug -- --project=chromium
+```
+
+### Base URL / server
+
+The config points to `http://localhost:4200`. Make sure the dev server is running in another terminal:
+
+```
+npm start
+```
+
+Optionally override base URL:
+
+```
+set PLAYWRIGHT_BASE_URL=http://localhost:4300; npm run test:e2e
+```
+
+### Notes
+
+- Some tests are currently skipped because backend functionality (registration, messaging persistence) may not yet be implemented.
+- Added `data-testid` attributes in key templates for selector stability.
+- Update or unskip tests once backend endpoints are available.
 
 ## Further help
 
